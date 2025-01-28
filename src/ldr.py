@@ -17,6 +17,8 @@ class LDR:
         try:
             while True:
                 try:
+                    cycle_ts = time.ticks_us()
+
                     print("Drain capacitor...", end='')
                     # drain capacity
                     ldr.init(ldr.OUT)
@@ -26,11 +28,10 @@ class LDR:
                     print("OK\nCharge...", end='')
                     low_ts = time.ticks_us()
                     ldr.init(ldr.IN)
-                    while ldr.value() == 0:
-                        await asyncio.sleep_ms(1)
-                    diff = time.ticks_diff(time.ticks_us(), low_ts)
-                    self.charge = diff
-                    print(f"OK ({diff}us)")
+                    while ldr.value() == 0 and time.diff(time.ticks_us(), cycle_ts) < refresh_period * 1000000:
+                        await asyncio.sleep_ms(10)
+                    self.charge = time.ticks_diff(time.ticks_us(), low_ts)
+                    print(f"OK ({self.charge}us)")
 
                 except asyncio.CancelledError:
                     raise
