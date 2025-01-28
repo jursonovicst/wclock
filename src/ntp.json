@@ -1,0 +1,4 @@
+{
+  "sync_period": 1800,
+  "host": "pool.ntp.org"
+}
